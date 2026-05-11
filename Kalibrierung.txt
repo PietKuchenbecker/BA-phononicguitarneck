@@ -1,0 +1,80 @@
+import os
+import numpy as np
+import soundfile as sf  # pip install pysoundfile
+
+# Pfad zum Ordner mit den WAV-Dateien
+folder_path = r"C:\Users\PietK\Documents\Python Scripts\VSC\BA Phononenkristalle\testaudio"
+
+peaks = []
+rms_values = []
+
+for file_name in os.listdir(folder_path):
+    if file_name.lower().endswith(".wav"):
+        file_path = os.path.join(folder_path, file_name)
+
+        # WAV-Datei einlesen
+        data, samplerate = sf.read(file_path)
+
+        # Falls Stereo -> Mono
+        if data.ndim > 1:
+            data = np.mean(data, axis=1)
+
+        # Peak berechnen (maximaler Absolutwert)
+        peak = np.max(np.abs(data))
+        peak_db = 20 * np.log10(peak) if peak > 0 else -np.inf
+        peaks.append(peak_db)
+
+        # Index des größten Peaks
+        peak_index = np.argmax(np.abs(data))
+
+        # Fenstergröße (0.5 s)
+        window_size = int(0.5 * samplerate)
+        forerun = 100
+
+        # Start- und Endindex fürs Fenster
+        start = max(0, peak_index - forerun)
+        end = min(len(data), peak_index + window_size - forerun)
+
+        # Fensterausschnitt
+        window_data = data[start:end]
+
+        # RMS berechnen
+        if len(window_data) > 0:
+            rms = np.sqrt(np.mean(window_data**2))
+            rms_db = 20 * np.log10(rms) if rms > 0 else -np.inf
+        else:
+            rms_db = -np.inf
+
+        rms_values.append(rms_db)
+
+# Ergebnisse ausgeben
+for f, p, r in zip(os.listdir(folder_path), peaks, rms_values):
+    if f.lower().endswith(".wav"):
+        print(f"File: {f}, Peak: {p:.2f} dBFS, RMS (0.5s um Peak): {r:.2f} dBFS")
+
+# print("Peak-Werte (in dB):")
+# print(peaks)
+print("")
+
+def StandardAbweichung (filename, data, run):
+    if len(data) == 0:
+        return None
+    
+    summe = sum(data)
+    anzahl = len(data)
+    mw = summe / anzahl
+    print(f"{run} Mittelwert: {mw}")
+
+    rqs = 0
+    for i, name in zip(data, filename):
+        fehler = (i - mw)**2
+        rqs = rqs + fehler
+        if fehler > 0.05 * abs(mw):
+            print(f"Achtung {run} {name} hat große Abweichung. Fehler: {fehler}")
+    sigma = np.sqrt(1/(anzahl-1) * rqs)
+    print(f"{run} hat eine Standardabweichung von {sigma}")
+    return sigma
+
+sigma_peak = StandardAbweichung (os.listdir(folder_path), peaks, "Peak")
+print("")
+sigma_rms = StandardAbweichung (os.listdir(folder_path), rms_values, "RMS")

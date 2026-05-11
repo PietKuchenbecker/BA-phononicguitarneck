@@ -1,0 +1,61 @@
+import os
+import numpy as np
+import soundfile as sf  # pip install pysoundfile
+
+# Pfad zum Ordner mit den WAV-Dateien
+folder_path = r"C:\Users\PietK\Documents\Python Scripts\VSC\BA Phononenkristalle\testaudio"
+
+peaks = []
+
+for file_name in os.listdir(folder_path):
+    if file_name.lower().endswith(".wav"):
+        file_path = os.path.join(folder_path, file_name)
+
+        # WAV-Datei einlesen
+        data, samplerate = sf.read(file_path)
+
+        # Falls Stereo -> Mono
+        if data.ndim > 1:
+            data = np.mean(data, axis=1)
+
+        # Peak berechnen (maximaler Absolutwert)
+        peak = np.max(np.abs(data))
+
+        # Peak in dBFS
+        peak_db = 20 * np.log10(peak) if peak > 0 else -np.inf
+
+        peaks.append(peak_db)
+
+print("Peak-Werte (in dB):")
+print(peaks)
+
+def StandardAbweichung (data):
+    if len(data) == 0:
+        return None
+    
+    summe = sum(data)
+    anzahl = len(data)
+    mw = summe / anzahl
+
+    rqs = 0
+    for i in data:
+        rqs = rqs + (i - mw)**2
+    sigma = np.sqrt(1/(anzahl-1) * rqs)
+    return sigma
+
+def PowerAnalyse(sigma, delta, z_alpha, z_power):
+    pa = ((z_alpha + z_power) * sigma / delta)**2
+    return pa
+
+
+alpha = 0.05        # Signifikanzniveau
+power = 0.8         # (1-beta)
+delta = 1           # Minimaler messbarer Effekt
+z_alpha = 1.959964  # bipolar
+z_power = 0.841621  # unipolar
+    
+sigma = StandardAbweichung (peaks)
+pa = PowerAnalyse (sigma, delta, z_alpha, z_power)
+
+# print(f"Du hast eine Standardabweichung von {sigma}")
+print(f"Du solltest {round(pa)} Versuche durchführen.")
