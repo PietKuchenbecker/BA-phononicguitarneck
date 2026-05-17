@@ -7,7 +7,7 @@ Dieses Repository enthält die für die Bachelorarbeit verwendeten Python-Skript
 
 In dieser Arbeit wurde eine E-Gitarre mit einem Metamaterial versehen und die Effekte dieser Struktur auf die Schwingung und den Klang der Gitarre analysiert.
 
-Aufgrund der Datenmenge, liegen diesem Repository keine Rohdaten vor, sondern nur der verwendete Code.
+Aufgrund der Datenmenge liegen diesem Repository keine Rohdaten vor, sondern nur der verwendete Code.
 
 Das Projekt wurde vorwiegend mit Python 3.12, in Teilen auch mit Python 3.14 entwickelt.
 
@@ -28,7 +28,7 @@ Es ist somit nicht klar, welche Functions nun wirklich alle verwendet wurden.
 # run_array_functions.ipynb
 
 Dies ist die Datei, mit der die Functions aus "array_functions.py" ausgeführt wurden.
-Somit stecken hierin die gesamten Prozesse zur Analyse der Daten.
+Somit beinhaltet sie die gesamten Prozesse zur Analyse der Daten.
 Mithilfe dieses interaktiven Skriptes lassen sich die Daten sehr einfach visualisieren.
 
 # all_functions_array.ipynb
